@@ -1,33 +1,112 @@
-# Abstract Global Wallet with Next.js
+# Token Fantasy 🎮
 
-This example showcases how to use the Abstract Global Wallet react SDK inside a [Next.js](https://nextjs.org/) application.
+Фэнтези-лига для криптотокенов с эстетикой city pop и VHS.
 
-## Local Development
+## Особенности
 
-1. Get a copy of the `agw-nextjs` example directory from the Abstract Examples repository:
+- 🎴 Сборка колоды из 5 токенов (максимум 250 веса)
+- 🎯 Симуляция битв с мифическим противником
+- 🏆 Таблица лидеров с сохранением лучших результатов
+- 💼 Интеграция с кошельком через RainbowKit
+- 🎨 Стиль city pop и VHS эффекты
 
-   ```bash
-   mkdir -p agw-nextjs && curl -L https://codeload.github.com/Abstract-Foundation/examples/tar.gz/main | tar -xz --strip=2 -C agw-nextjs examples-main/agw-nextjs && cd agw-nextjs
-   ```
+## Технологии
 
-2. Install dependencies
+- **Next.js 15** с TypeScript
+- **React 19**
+- **Tailwind CSS 4** с кастомными стилями
+- **wagmi** + **RainbowKit** для подключения кошелька
+- **TanStack Query** для управления состоянием
 
-   ```bash
-   npm install
-   ```
+## Установка
 
-3. Run the development server
+1. Установите зависимости:
 
-   ```bash
-   npm run dev
-   ```
+```bash
+pnpm install
+```
 
-Visit [http://localhost:3000](http://localhost:3000) to see the app.
+2. Создайте файл `.env.local`:
 
-## Useful Links
+```bash
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+```
 
-- [Docs](https://docs.abs.xyz/)
-- [Official Site](https://abs.xyz/)
-- [GitHub](https://github.com/Abstract-Foundation)
-- [X](https://x.com/AbstractChain)
-- [Discord](https://discord.com/invite/abstractchain)
+- Получите Project ID на [WalletConnect Cloud](https://cloud.walletconnect.com).
+- `NEXT_PUBLIC_API_BASE_URL` - URL бэкенд API (по умолчанию: `http://127.0.0.1:8000`)
+
+3. Запустите dev сервер:
+
+```bash
+pnpm dev
+```
+
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
+
+## Структура проекта
+
+```
+src/
+├── app/
+│   ├── api/              # API routes (mock backend)
+│   │   ├── cards/        # GET /api/cards
+│   │   └── simulate/     # POST /api/simulate
+│   ├── leaderboard/      # Страница лидеров
+│   ├── layout.tsx        # Root layout
+│   ├── page.tsx          # Главная страница
+│   └── globals.css       # Глобальные стили (city pop/VHS)
+├── components/
+│   ├── Card.tsx          # Компонент карты
+│   ├── DeckBuilder.tsx   # Построитель колоды
+│   ├── Simulation.tsx    # Компонент симуляции
+│   ├── Sidebar.tsx       # Боковая панель навигации
+│   ├── WalletConnect.tsx # Подключение кошелька
+│   └── WalletProvider.tsx # Wagmi провайдер
+├── lib/
+│   ├── apiClient.ts      # Клиент для API (легко переключить на внешний backend)
+│   └── wagmi.ts          # Конфигурация wagmi
+└── types/
+    └── index.ts          # TypeScript типы
+```
+
+## API
+
+### Backend API
+
+Приложение использует внешний backend API. URL настраивается через переменную окружения `NEXT_PUBLIC_API_BASE_URL` (по умолчанию: `http://127.0.0.1:8000`).
+
+#### Основные эндпоинты:
+
+- **GET /api/tokens** - Получить 30 доступных игровых токенов
+- **GET /api/tournament** - Получить информацию о турнире
+- **POST /api/lock-deck** - Заблокировать колоду из 5 токенов
+- **POST /api/simulate-session** - Запустить симуляцию для заблокированной колоды
+- **GET /api/session/:session_id** - Получить информацию о сессии
+- **GET /api/session/:session_id/results** - Получить результаты симуляции
+- **POST /api/validate-deck** - Проверить колоду на соответствие требованиям
+
+Подробная документация API доступна в описании проекта.
+
+### Legacy Mock Backend (Next.js API Routes)
+
+Старые Next.js API routes (`/api/cards`, `/api/simulate`) больше не используются, но могут оставаться в проекте для совместимости.
+
+## Стилизация
+
+Приложение использует кастомные стили в стиле city pop и VHS:
+
+- **Градиентные фоны** с фиолетовыми и розовыми оттенками
+- **VHS scanlines** эффект
+- **Неоновое свечение** для текста
+- **Искажения** в стиле VHS
+
+Все стили определены в `src/app/globals.css`.
+
+## Leaderboard
+
+Таблица лидеров использует `localStorage` для хранения лучших результатов. Результаты сохраняются автоматически при победе в симуляции.
+
+## Лицензия
+
+MIT
