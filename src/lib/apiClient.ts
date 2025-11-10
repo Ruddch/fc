@@ -15,7 +15,7 @@ import type {
 } from "@/types";
 
 // Base URL для API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://back.hodleague.com/";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://back.hodleague.com";
 
 // Вспомогательная функция для обработки ответов API
 async function handleResponse<T>(response: Response): Promise<T> {

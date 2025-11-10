@@ -56,7 +56,7 @@ export default function Sidebar() {
             backgroundClip: 'text'
           }}
         >
-          Token Fantasy
+          HODLeague
         </h1>
         <div
           style={{ height: 'calc(100vh - 110px - 1.5rem)' }}

@@ -30,8 +30,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Token Fantasy",
-  description: "Fantasy league for crypto tokens",
+  title: "Hodleague",
+  description: "Hodleague is a token fantasy league",
 };
 
 // Abstract Fonts
