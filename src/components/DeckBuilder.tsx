@@ -15,7 +15,7 @@ export default function DeckBuilder({
 }: DeckBuilderProps) {
   const selectedCards = deck.cards;
 
-  const WEIGHT_LIMIT = 250; // Tournament weight limit
+  const WEIGHT_LIMIT = 28; // Tournament weight limit
 
   const totalWeight = selectedCards.reduce(
     (sum, card) => sum + card.baseScore,

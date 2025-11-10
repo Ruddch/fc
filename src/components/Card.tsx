@@ -147,7 +147,7 @@ export default function Card({
       {/* Bottom section - statistics */}
       <div className={`absolute bottom-0 left-0 right-0 ${showRemove ? 'p-1.5' : 'p-3'} bg-gradient-to-t from-[var(--bg-surface)]/95 to-transparent z-10`}>
         <div className="flex items-center justify-between">
-          <div className={`${showRemove ? 'text-[9px]' : 'text-xs'} text-white/60 font-medium`}>POWER</div>
+          <div className={`${showRemove ? 'text-[9px]' : 'text-xs'} text-white/60 font-medium`}>WEIGHT</div>
           <div className={`${showRemove ? 'text-sm' : 'text-xl'} font-semibold text-white`}>
             {card.baseScore}
           </div>

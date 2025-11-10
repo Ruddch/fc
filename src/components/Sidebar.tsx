@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { openOnboarding } = useOnboarding();
 
   return (
     <>
@@ -81,13 +83,22 @@ export default function Sidebar() {
             >
               Home
             </Link>
+            <button
+              onClick={() => {
+                openOnboarding();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full block transition-all pill-button text-white/70 hover:text-white text-left"
+            >
+              Rules
+            </button>
             <div
               className="w-full block transition-all pill-button text-white/50 opacity-60 pointer-events-none cursor-not-allowed"
             >
-                <div className="flex items-center justify-between">
-                  <span>Leaderboard</span>
-                  <span className="text-xs text-white/40">Coming Soon</span>
-                </div>
+              <div className="flex items-center justify-between">
+                <span>Leaderboard</span>
+                <span className="text-xs text-white/40">Coming Soon</span>
+              </div>
             </div>
           </nav>
           

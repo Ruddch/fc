@@ -84,18 +84,24 @@ export type TokenPerformance = {
   symbol: string;
   name: string;
   activity_score: number;
+  activity_points: number;
+  activity_rank: number;
+  activity_contribution: number;
   daily_change_pct: number;
-  weekly_change_pct: number;
+  period_change_pct: number;
+  change_rank: number;
   raw_score: number;
   final_score: number;
   mc_factor: number;
+  weekly_contribution: number;
+  weekly_points: number;
 };
 
 export type DailyScore = {
-  day: string | number; // Can be string like "tuesday" or number
+  day: number;
   score: number;
   market_position: number;
-  tokens_performance: TokenPerformance[]; // Array instead of Record
+  tokens_performance: TokenPerformance[];
 };
 
 export type SimulationResult = {
@@ -165,5 +171,11 @@ export type TokensStatsResponse = {
     other_tokens_included: number;
   };
   last_updated: string;
+};
+
+// Response type for simulateSession
+export type SimulateSessionResponse = {
+  session: Session;
+  simulation: SimulationResult;
 };
 

@@ -11,6 +11,7 @@ import type {
   SessionsResponse,
   TokensStatsResponse,
   Card,
+  SimulateSessionResponse,
 } from "@/types";
 
 // Base URL для API
@@ -109,7 +110,7 @@ export async function validateDeck(selectedTokens: string[]): Promise<DeckValida
 }
 
 // 10. POST /api/simulate-session - Запустить симуляцию для заблокированной колоды
-export async function simulateSession(sessionId: string): Promise<SimulationResult> {
+export async function simulateSession(sessionId: string, selectedTokens: string[], walletAddress: string): Promise<SimulateSessionResponse> {
   const response = await fetch(`${API_BASE_URL}/api/simulate-session`, {
     method: "POST",
     headers: {
@@ -117,9 +118,11 @@ export async function simulateSession(sessionId: string): Promise<SimulationResu
     },
     body: JSON.stringify({
       session_id: sessionId,
+      selected_tokens: selectedTokens,
+      wallet_address: walletAddress,
     }),
   });
-  return handleResponse<SimulationResult>(response);
+  return handleResponse<SimulateSessionResponse>(response);
 }
 
 // 11. GET /api/session/<session_id>/results - Получить детальные результаты симуляции
@@ -146,16 +149,3 @@ export async function fetchCards(): Promise<Card[]> {
   const tokensResponse = await fetchTokens();
   return tokensResponse.tokens.map((token, index) => tokenToCard(token, index));
 }
-
-// Legacy функция для симуляции (использует новое API)
-export async function simulateBattle(
-  playerDeck: { cards: Card[] },
-  opponentDeck?: { cards: Card[] }
-): Promise<SimulationResult> {
-  // Эта функция больше не используется в новой архитектуре
-  // Вместо неё используется lockDeck + simulateSession
-  throw new Error(
-    "simulateBattle is deprecated. Use lockDeck() and simulateSession() instead."
-  );
-}
-

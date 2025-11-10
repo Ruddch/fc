@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import { Geist, Geist_Mono, Inter, Plus_Jakarta_Sans } from "next/font/google";
 import WalletProvider from "@/components/WalletProvider";
 import Sidebar from "@/components/Sidebar";
+import { OnboardingProvider } from "@/contexts/OnboardingContext";
+import OnboardingModalWrapper from "@/components/OnboardingModalWrapper";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -70,8 +72,11 @@ export default function RootLayout({
       >
         <>
           <WalletProvider>
-            <Sidebar />
-            {children}
+            <OnboardingProvider>
+              <OnboardingModalWrapper />
+              <Sidebar />
+              {children}
+            </OnboardingProvider>
           </WalletProvider>
         </>
       </body>

@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import type { Card as CardType, Deck, SimulationResult } from "@/types";
-import { fetchCards, fetchSessionResults } from "@/lib/apiClient";
+import type { Card as CardType, Deck } from "@/types";
+import { fetchCards } from "@/lib/apiClient";
 import DeckBuilder from "@/components/DeckBuilder";
 import Simulation from "@/components/Simulation";
 import Card from "@/components/Card";
 import WalletConnect from "@/components/WalletConnect";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 import { isAddressWhitelisted } from "@/lib/whitelist";
 
 export default function Home() {
@@ -16,15 +17,15 @@ export default function Home() {
   const [deck, setDeck] = useState<Deck>({ cards: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [detailedSessionId, setDetailedSessionId] = useState<string | null>(null);
-  const [detailedResults, setDetailedResults] = useState<SimulationResult | null>(null);
-  const [loadingDetails, setLoadingDetails] = useState(false);
+  const { openOnboarding } = useOnboarding();
 
   useEffect(() => {
     async function loadCards() {
       try {
         const fetchedCards = await fetchCards();
-        setCards(fetchedCards);
+        // Sort cards by weight (baseScore) in descending order
+        const sortedCards = [...fetchedCards].sort((a, b) => b.baseScore - a.baseScore);
+        setCards(sortedCards);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load cards");
       } finally {
@@ -34,24 +35,18 @@ export default function Home() {
     loadCards();
   }, []);
 
-  const handleShowDetailedResults = async (sessionId: string) => {
-    setDetailedSessionId(sessionId);
-    setLoadingDetails(true);
-    setError(null);
-    try {
-      const results = await fetchSessionResults(sessionId);
-      setDetailedResults(results);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load detailed results");
-    } finally {
-      setLoadingDetails(false);
+  // Check if onboarding should be shown after wallet connection
+  useEffect(() => {
+    if (isConnected && address && isAddressWhitelisted(address)) {
+      const onboardingKey = `onboarding_shown_${address.toLowerCase()}`;
+      const hasSeenOnboarding = localStorage.getItem(onboardingKey);
+      
+      if (!hasSeenOnboarding) {
+        openOnboarding();
+      }
     }
-  };
+  }, [isConnected, address, openOnboarding]);
 
-  const handleBackToMain = () => {
-    setDetailedSessionId(null);
-    setDetailedResults(null);
-  };
 
   if (loading) {
     return (
@@ -132,110 +127,8 @@ export default function Home() {
           <WalletConnect />
         </div>
 
-        {detailedSessionId && detailedResults ? (
-          // Detailed Results View
-          <div className="space-y-6">
-            <button
-              onClick={handleBackToMain}
-              className="glass border border-white/12 bg-white/5 hover:bg-white/8 hover:border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
-            >
-              ← Back to Deck Builder
-            </button>
-
-            <div className="glass-1 border border-white/8 rounded-xl p-6">
-              <h2 className="text-2xl font-medium mb-6 text-white" style={{ letterSpacing: '-0.02em' }}>
-                Detailed Simulation Results
-              </h2>
-
-              {/* Summary */}
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="glass border border-white/8 rounded-xl p-4">
-                  <div className="text-sm text-white/60 mb-1">Final Score</div>
-                  <div className="text-2xl font-semibold text-white">{detailedResults.final_score.toFixed(2)}</div>
-                </div>
-                <div className="glass border border-white/8 rounded-xl p-4">
-                  <div className="text-sm text-white/60 mb-1">Market Position</div>
-                  <div className="text-2xl font-semibold text-white">#{detailedResults.final_market_position}</div>
-                </div>
-                <div className="glass border border-white/8 rounded-xl p-4">
-                  <div className="text-sm text-white/60 mb-1">Session ID</div>
-                  <div className="text-xs font-mono text-white/80 break-all">{detailedResults.session_id}</div>
-                </div>
-              </div>
-
-              {/* Daily Scores with Token Performance */}
-              <div className="space-y-4">
-                <h3 className="text-xl font-medium text-white/90">Daily Performance</h3>
-                {detailedResults.daily_scores.map((daily) => (
-                  <div key={typeof daily.day === 'string' ? daily.day : `day-${daily.day}`} className="glass border border-white/8 rounded-xl p-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h4 className="text-lg font-medium text-white capitalize">
-                          {typeof daily.day === 'string' ? daily.day : `Day ${daily.day}`}
-                        </h4>
-                        <div className="text-sm text-white/60">Position: #{daily.market_position}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-semibold text-white">{daily.score.toFixed(2)}</div>
-                        <div className="text-xs text-white/60">Score</div>
-                      </div>
-                    </div>
-
-                    {/* Token Performance */}
-                    <div className="mt-4 pt-4 border-t border-white/5">
-                      <h5 className="text-sm font-medium text-white/80 mb-3">Token Performance</h5>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {daily.tokens_performance.map((perf) => (
-                          <div key={perf.symbol} className="glass border border-white/5 rounded-lg p-3">
-                            <div className="flex justify-between items-start mb-3">
-                              <div>
-                                <div className="text-sm font-medium text-white">{perf.symbol}</div>
-                                <div className="text-xs text-white/50">{perf.name}</div>
-                              </div>
-                              <span className={`text-xs font-medium ${
-                                perf.daily_change_pct >= 0 ? 'text-green-400' : 'text-red-400'
-                              }`}>
-                                {perf.daily_change_pct >= 0 ? '+' : ''}{perf.daily_change_pct.toFixed(2)}%
-                              </span>
-                            </div>
-                            <div className="text-xs text-white/60 space-y-1.5">
-                              <div className="flex justify-between">
-                                <span>Final Score:</span>
-                                <span className="text-white font-medium">{perf.final_score.toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Activity Score:</span>
-                                <span className="text-white/80">{perf.activity_score.toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Raw Score:</span>
-                                <span className={`${perf.raw_score >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                  {perf.raw_score >= 0 ? '+' : ''}{perf.raw_score.toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Weekly Change:</span>
-                                <span className={`${perf.weekly_change_pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                  {perf.weekly_change_pct >= 0 ? '+' : ''}{perf.weekly_change_pct.toFixed(2)}%
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>MC Factor:</span>
-                                <span className="text-white/80">{perf.mc_factor.toFixed(4)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          // Main Deck Builder View
-          <div className="grid lg:grid-cols-2 gap-6">
+        {/* Main Deck Builder View */}
+        <div className="grid lg:grid-cols-2 gap-6">
             {/* Available Cards */}
             <div className="glass-1 p-6 rounded-xl">
               <h3 className="text-xl font-medium mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>
@@ -245,7 +138,7 @@ export default function Home() {
                 {cards.map((card) => {
                   const currentDeck = deck.cards;
                   const isInDeck = currentDeck.some((c) => c.id === card.id);
-                  const WEIGHT_LIMIT = 250; // Tournament weight limit
+                  const WEIGHT_LIMIT = 28; // Tournament weight limit
                   const totalWeight = currentDeck.reduce(
                     (sum, c) => sum + c.baseScore,
                     0
@@ -283,20 +176,9 @@ export default function Home() {
               />
               <Simulation 
                 playerDeck={deck} 
-                availableCards={cards}
-                onShowDetailedResults={handleShowDetailedResults}
               />
             </div>
           </div>
-        )}
-
-        {loadingDetails && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="glass border border-white/20 rounded-xl p-6">
-              <div className="text-white">Loading detailed results...</div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
