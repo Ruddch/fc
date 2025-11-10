@@ -55,7 +55,7 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
         <div className="space-y-6">
           <div>
             <h2 className="text-3xl font-medium mb-2 text-white" style={{ letterSpacing: '-0.02em' }}>
-              Welcome to Token Fantasy
+              Welcome to HODLeague
             </h2>
             <p className="text-white/60">
               Learn how to play and maximize your score
@@ -84,7 +84,7 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                 Run Simulation
               </h3>
               <p className="text-white/70 leading-relaxed">
-                Once your deck is ready, click &quot;Simulate&quot; to run a 7-day market simulation. 
+                Once your deck is ready, click &quot;Simulate&quot; to run a 5-day market simulation. 
                 Your tokens will be evaluated based on their real market performance, activity scores, 
                 and market capitalization factors.
               </p>
@@ -99,7 +99,7 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
               </h3>
               <p className="text-white/70 leading-relaxed">
                 Monitor your daily scores and market positions. View detailed results to see how each 
-                token performed day by day, including price changes, activity scores, and final rankings.
+                token performed day by day, including price changes, activity scores, and market conditions.
               </p>
             </div>
 

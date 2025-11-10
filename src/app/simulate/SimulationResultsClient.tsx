@@ -122,12 +122,7 @@ export default function SimulationResultsClient() {
               Simulation Results
             </h2>
             <div className="flex gap-2">
-              <button
-                onClick={() => router.push(`/simulate/detailed?sessionId=${sessionId}`)}
-                className="glass border border-white/12 bg-white/5 hover:bg-white/8 hover:border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
-              >
-                View Detailed
-              </button>
+              
               <button
                 onClick={() => router.push('/')}
                 className="glass border border-white/12 bg-white/5 hover:bg-white/8 hover:border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
