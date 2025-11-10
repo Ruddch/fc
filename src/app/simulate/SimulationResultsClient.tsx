@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import type { SimulationResult, Session } from "@/types";
 import { fetchSessionResults, fetchSession } from "@/lib/apiClient";
@@ -24,11 +24,11 @@ function getDayName(dayNumber: number, simulationDate: string): string {
   }
 }
 
-export default function SimulationResultsPage() {
-  const params = useParams();
+export default function SimulationResultsClient() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { isConnected } = useAccount();
-  const sessionId = params.sessionId as string;
+  const sessionId = searchParams.get('sessionId') || '';
   
   const [simulation, setSimulation] = useState<SimulationResult | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -121,12 +121,20 @@ export default function SimulationResultsPage() {
             <h2 className="text-2xl font-medium text-white/90" style={{ letterSpacing: '-0.02em' }}>
               Simulation Results
             </h2>
-            <button
-              onClick={() => router.push('/')}
-              className="glass border border-white/12 bg-white/5 hover:bg-white/8 hover:border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
-            >
-              ← Back to Deck Builder
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => router.push(`/simulate/detailed?sessionId=${sessionId}`)}
+                className="glass border border-white/12 bg-white/5 hover:bg-white/8 hover:border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              >
+                View Detailed
+              </button>
+              <button
+                onClick={() => router.push('/')}
+                className="glass border border-white/12 bg-white/5 hover:bg-white/8 hover:border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              >
+                ← Back to Deck Builder
+              </button>
+            </div>
           </div>
 
           {/* Session Info */}

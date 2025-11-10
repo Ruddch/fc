@@ -61,7 +61,7 @@ export default function Simulation({
       }
 
       // Перенаправляем на страницу результатов
-      router.push(`/simulate/${simulationResponse.session.session_id}`);
+      router.push(`/simulate?sessionId=${simulationResponse.session.session_id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Simulation failed");
     } finally {
