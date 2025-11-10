@@ -204,13 +204,45 @@ export default function SimulationResultsClient() {
 
               return (
                 <div key={`day-${daily.day}`} className="glass border border-white/8 rounded-xl p-6">
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex justify-between items-center mb-6 gap-4">
                     <div>
                       <h4 className="text-xl font-medium text-white">
                         {dayName}
                       </h4>
                       <div className="text-sm text-white/60 mt-1">Day {daily.day} • Top {daily.market_position}%</div>
                     </div>
+                    
+                    {/* Market Overview - Between Day and Score */}
+                    {simulation.market_overview && simulation.market_overview[daily.day] && (
+                      <div className="flex-1 flex items-center justify-center">
+                        <div className="flex items-center gap-3 flex-wrap justify-center">
+                          <span className="text-sm text-white/60">Market Overview:</span>
+                          <span className="text-sm text-white/80">
+                            {simulation.market_overview[daily.day].description}
+                          </span>
+                          <div className={`flex items-center gap-1 font-medium text-lg ${
+                            simulation.market_overview[daily.day].actual_market_change_pct >= 0 
+                              ? 'text-green-400' 
+                              : 'text-red-400'
+                          }`}>
+                            {simulation.market_overview[daily.day].actual_market_change_pct >= 0 ? (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            )}
+                            <span>
+                              {simulation.market_overview[daily.day].actual_market_change_pct >= 0 ? '+' : ''}
+                              {simulation.market_overview[daily.day].actual_market_change_pct.toFixed(2)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="text-right">
                       <div className="text-3xl font-semibold text-white">{daily.score.toFixed(2)}</div>
                       <div className="text-xs text-white/60">Score</div>
@@ -221,6 +253,7 @@ export default function SimulationResultsClient() {
                   {daily.tokens_performance.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-white/5">
                       <h5 className="text-sm font-medium text-white/80 mb-4">Token Performance</h5>
+                      
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {daily.tokens_performance.map((perf) => {
                           const isPositive = perf.daily_change_pct >= 0;
@@ -310,38 +343,6 @@ export default function SimulationResultsClient() {
                           );
                         })}
                       </div>
-                      
-                      {/* Market Overview - Second Row */}
-                      {simulation.market_overview && simulation.market_overview[daily.day] && (
-                        <div className="mt-4 pt-4 border-t border-white/5">
-                          <div className="flex items-center justify-center">
-                            <div className="glass border border-white/5 rounded-lg p-4">
-                              <div className="flex items-center gap-3">
-                                <span className="text-sm text-white/60">Market Overview:</span>
-                                <div className={`flex items-center gap-1 font-medium text-lg ${
-                                  simulation.market_overview[daily.day].actual_market_change_pct >= 0 
-                                    ? 'text-green-400' 
-                                    : 'text-red-400'
-                                }`}>
-                                  {simulation.market_overview[daily.day].actual_market_change_pct >= 0 ? (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                    </svg>
-                                  ) : (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                  )}
-                                  <span>
-                                    {simulation.market_overview[daily.day].actual_market_change_pct >= 0 ? '+' : ''}
-                                    {simulation.market_overview[daily.day].actual_market_change_pct.toFixed(2)}%
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
