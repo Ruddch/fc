@@ -310,6 +310,38 @@ export default function SimulationResultsClient() {
                           );
                         })}
                       </div>
+                      
+                      {/* Market Overview - Second Row */}
+                      {simulation.market_overview && simulation.market_overview[daily.day] && (
+                        <div className="mt-4 pt-4 border-t border-white/5">
+                          <div className="flex items-center justify-center">
+                            <div className="glass border border-white/5 rounded-lg p-4">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-white/60">Market Overview:</span>
+                                <div className={`flex items-center gap-1 font-medium text-lg ${
+                                  simulation.market_overview[daily.day].actual_market_change_pct >= 0 
+                                    ? 'text-green-400' 
+                                    : 'text-red-400'
+                                }`}>
+                                  {simulation.market_overview[daily.day].actual_market_change_pct >= 0 ? (
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  )}
+                                  <span>
+                                    {simulation.market_overview[daily.day].actual_market_change_pct >= 0 ? '+' : ''}
+                                    {simulation.market_overview[daily.day].actual_market_change_pct.toFixed(2)}%
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

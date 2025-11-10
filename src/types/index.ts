@@ -97,6 +97,14 @@ export type TokenPerformance = {
   weekly_points: number;
 };
 
+export type MarketOverviewEntry = {
+  actual_market_change_pct: number;
+  description: string;
+  market_change_pct: number;
+  status: string;
+  trend: string;
+};
+
 export type DailyScore = {
   day: number;
   score: number;
@@ -111,6 +119,7 @@ export type SimulationResult = {
   daily_scores: DailyScore[];
   final_score: number;
   final_market_position: number;
+  market_overview?: Record<number, MarketOverviewEntry>;
 };
 
 // Validation types
