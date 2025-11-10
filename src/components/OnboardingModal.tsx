@@ -84,7 +84,7 @@ export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProp
                 Run Simulation
               </h3>
               <p className="text-white/70 leading-relaxed">
-                Once your deck is ready, click "Simulate" to run a 7-day market simulation. 
+                Once your deck is ready, click &quot;Simulate&quot; to run a 7-day market simulation. 
                 Your tokens will be evaluated based on their real market performance, activity scores, 
                 and market capitalization factors.
               </p>

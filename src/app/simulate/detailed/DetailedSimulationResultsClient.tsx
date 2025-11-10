@@ -23,7 +23,7 @@ function getDayName(dayNumber: number, simulationDate: string): string {
 export default function DetailedSimulationResultsClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const sessionId = searchParams.get('sessionId') || '';
   
   const [simulation, setSimulation] = useState<SimulationResult | null>(null);
@@ -268,7 +268,7 @@ export default function DetailedSimulationResultsClient() {
           {/* Daily Scores with Full Token Performance */}
           <div className="space-y-4">
             <h3 className="text-xl font-medium text-white/90">Daily Performance Details</h3>
-            {simulation.daily_scores.map((daily, dayIndex) => {
+            {simulation.daily_scores.map((daily) => {
               const dayName = getDayName(daily.day, simulation.simulation_date);
               return (
                 <div key={`day-${daily.day}`} className="glass border border-white/8 rounded-xl p-6">
