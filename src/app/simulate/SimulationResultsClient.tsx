@@ -209,7 +209,7 @@ export default function SimulationResultsClient() {
                       <h4 className="text-xl font-medium text-white">
                         {dayName}
                       </h4>
-                      <div className="text-sm text-white/60 mt-1">Day {daily.day} • Position: #{daily.market_position}</div>
+                      <div className="text-sm text-white/60 mt-1">Day {daily.day} • Top {daily.market_position}%</div>
                     </div>
                     <div className="text-right">
                       <div className="text-3xl font-semibold text-white">{daily.score.toFixed(2)}</div>
