@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
-import type { SimulationResult, Session } from "@/types";
-import { fetchSessionResults, fetchSession } from "@/lib/apiClient";
+import type { SimulationResult, Session, TokenFinalStats } from "@/types";
+import { fetchSessionResults, fetchSession, fetchSimulationTokens } from "@/lib/apiClient";
 import WalletConnect from "@/components/WalletConnect";
 
 // Функция для получения названия дня недели
@@ -34,6 +34,7 @@ export default function SimulationResultsClient() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tokenLogos, setTokenLogos] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     async function loadResults() {
@@ -43,14 +44,24 @@ export default function SimulationResultsClient() {
       setError(null);
       
       try {
-        // Загружаем результаты симуляции и информацию о сессии
-        const [simulationData, sessionData] = await Promise.all([
+        // Загружаем результаты симуляции, информацию о сессии и все токены для логотипов
+        const [simulationData, sessionData, tokensData] = await Promise.all([
           fetchSessionResults(sessionId),
           fetchSession(sessionId),
+          fetchSimulationTokens().catch(() => null), // Не критично, если не загрузится
         ]);
         
         setSimulation(simulationData);
         setSession(sessionData);
+        
+        // Создаем мапу символов токенов к их логотипам
+        if (tokensData) {
+          const logosMap = new Map<string, string>();
+          tokensData.tokens.forEach(token => {
+            logosMap.set(token.symbol.toUpperCase(), token.logo_url);
+          });
+          setTokenLogos(logosMap);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load simulation results");
       } finally {
@@ -503,6 +514,110 @@ export default function SimulationResultsClient() {
               </div>
             );
           })()}
+
+          {/* Tokens Leaderboard */}
+          {simulation.all_tokens_final && Object.keys(simulation.all_tokens_final).length > 0 && (
+            <div className="glass-1 border border-white/8 rounded-xl p-6">
+              <h3 className="text-xl font-medium mb-6 text-white" style={{ letterSpacing: '-0.02em' }}>
+                Tokens Leaderboard
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-white/60">Rank</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-white/60">Symbol</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-white/60">Final Score</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-white/60">Activity Rank</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-white/60">Change Rank</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-white/60">Period Change</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-white/60">Market Cap</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      // Преобразуем объект в массив и сортируем по final_score
+                      const tokensArray: Array<[string, TokenFinalStats]> = Object.entries(simulation.all_tokens_final);
+                      const sortedTokens = tokensArray.sort((a, b) => b[1].final_score - a[1].final_score);
+                      
+                      return sortedTokens.map(([symbol, stats], index) => {
+                        const rank = index + 1;
+                        const formatMarketCap = (value: number): string => {
+                          if (value >= 1e9) {
+                            return `$${(value / 1e9).toFixed(2)}B`;
+                          } else if (value >= 1e6) {
+                            return `$${(value / 1e6).toFixed(2)}M`;
+                          } else if (value >= 1e3) {
+                            return `$${(value / 1e3).toFixed(2)}K`;
+                          }
+                          return `$${value.toFixed(2)}`;
+                        };
+
+                        return (
+                          <tr 
+                            key={symbol} 
+                            className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                          >
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-sm font-semibold ${
+                                  rank === 1 ? 'text-yellow-400' :
+                                  rank === 2 ? 'text-gray-300' :
+                                  rank === 3 ? 'text-amber-600' :
+                                  'text-white/80'
+                                }`}>
+                                  #{rank}
+                                </span>
+                                {rank <= 3 && (
+                                  <span className="text-lg">
+                                    {rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-3">
+                                {tokenLogos.has(symbol.toUpperCase()) && (
+                                  <img 
+                                    src={tokenLogos.get(symbol.toUpperCase())!} 
+                                    alt={symbol}
+                                    className="w-8 h-8 rounded-full"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                  />
+                                )}
+                                <div className="text-base font-medium text-white">{symbol}</div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <div className="text-base font-semibold text-white">{stats.final_score.toFixed(2)}</div>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <div className="text-sm text-white/80">#{stats.activity_rank}</div>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <div className="text-sm text-white/80">#{stats.change_rank}</div>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <div className={`text-sm font-medium ${
+                                stats.period_change >= 0 ? 'text-green-400' : 'text-red-400'
+                              }`}>
+                                {stats.period_change >= 0 ? '+' : ''}{stats.period_change.toFixed(2)}%
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <div className="text-sm text-white/80">{formatMarketCap(stats.market_cap)}</div>
+                            </td>
+                          </tr>
+                        );
+                      });
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

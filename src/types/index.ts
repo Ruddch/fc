@@ -112,6 +112,15 @@ export type DailyScore = {
   tokens_performance: TokenPerformance[];
 };
 
+export type TokenFinalStats = {
+  symbol: string;
+  activity_rank: number;
+  change_rank: number;
+  final_score: number;
+  market_cap: number;
+  period_change: number;
+};
+
 export type SimulationResult = {
   session_id: string;
   wallet_address: string;
@@ -120,6 +129,7 @@ export type SimulationResult = {
   final_score: number;
   final_market_position: number;
   market_overview?: Record<number, MarketOverviewEntry>;
+  all_tokens_final?: Record<string, TokenFinalStats>;
 };
 
 // Validation types
